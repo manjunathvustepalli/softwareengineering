@@ -10,7 +10,7 @@ namespace MyBackendApi.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    // [Authorize]
     public class DoctorController : ControllerBase
     {
         private readonly Data.AppDbContext dbContext;
@@ -25,6 +25,21 @@ namespace MyBackendApi.Controller
         {
             var records = dbContext.Doctors.ToList();
             return Ok(records);
+        }
+        [HttpGet]
+        [Route("search")]
+        public IActionResult SearchDoctorByName([FromQuery] string name)
+        {
+            var doctors = dbContext.Doctors
+                .Where(d => d.Username.Contains(name)) // Search for doctors whose names contain the input
+                .ToList();
+
+            if (doctors == null || !doctors.Any())
+            {
+                return NotFound(new { message = "No doctors found with the given name" });
+            }
+
+            return Ok(doctors);
         }
         [HttpGet]
         [Route("{id:int}")]
@@ -78,7 +93,7 @@ namespace MyBackendApi.Controller
             }
             doctor.Username = updateDoctorDto.Username;
             doctor.Password = updateDoctorDto.Password;
-             if (!string.IsNullOrEmpty(updateDoctorDto.Password))
+            if (!string.IsNullOrEmpty(updateDoctorDto.Password))
             {
                 doctor.PasswordHash = BCrypt.Net.BCrypt.HashPassword(updateDoctorDto.Password);
             }

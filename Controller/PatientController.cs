@@ -10,7 +10,7 @@ namespace MyBackendApi.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    // [Authorize]
     public class PatientController : ControllerBase
     {
         private readonly Data.AppDbContext dbContext;
@@ -27,7 +27,23 @@ namespace MyBackendApi.Controller
             return Ok(records);
         }
         [HttpGet]
+        [Route("search")]
+        public IActionResult GetPatientByName([FromQuery] string name)
+        {
+            var patients = dbContext.Patients
+                .Where(p => p.Username.Contains(name)) // Search for patients whose names contain the input
+                .ToList();
+
+            if (patients == null || !patients.Any())
+            {
+                return NotFound(new { message = "No patients found with the given name" });
+            }
+
+            return Ok(patients);
+        }
+        [HttpGet]
         [Route("{id:int}")]
+
         public IActionResult GetPatientById(int id)
         {
             var patient = dbContext.Patients.Find(id);

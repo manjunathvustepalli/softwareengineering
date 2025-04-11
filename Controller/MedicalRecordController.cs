@@ -10,7 +10,7 @@ namespace MyBackendApi.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    // [Authorize]
     public class MedicalRecordController : ControllerBase
     {
         private readonly Data.AppDbContext dbContext;
@@ -21,13 +21,26 @@ namespace MyBackendApi.Controller
             this.dbContext = dbContext;
         }
         [HttpGet]
-        public IActionResult GetMedicalRecords()
+        [Route("recent")]
+        public IActionResult GetRecentMedicalRecords()
         {
-            var records=dbContext.MedicalRecords.ToList();
+            var records = dbContext.MedicalRecords
+                .OrderByDescending(record => record.DateCreated) // Sort by DateCreated in descending order
+                .Take(10) // Take only the last 10 records
+                .ToList();
+
             return Ok(records);
         }
-         [HttpGet]
-         [Route("{id:int}")]
+        [HttpGet]
+        public IActionResult GetMedicalRecords()
+        {
+            var records = dbContext.MedicalRecords
+                    .OrderByDescending(record => record.DateCreated) // Sort by DateCreated in descending order
+                    .ToList();
+            return Ok(records);
+        }
+        [HttpGet]
+        [Route("{id:int}")]
         public IActionResult GetMedicalRecordById(int id)
         {
             var medicalRecord = dbContext.MedicalRecords.Find(id);
@@ -37,11 +50,11 @@ namespace MyBackendApi.Controller
             }
             return Ok(medicalRecord);
         }
-      
+
         [HttpPost]
         public IActionResult AddMedicalRecord(AddMedicalRecordDto addMedicalRecordDto)
         {
-           dbContext.MedicalRecords.Add(new MedicalRecord
+            dbContext.MedicalRecords.Add(new MedicalRecord
             {
                 DateCreated = addMedicalRecordDto.DateCreated,
                 LastUpdated = addMedicalRecordDto.LastUpdated,
@@ -60,11 +73,12 @@ namespace MyBackendApi.Controller
         }
         [HttpPut]
         [Route("{id:int}")]
-        public IActionResult UpdateMedicalRecord(int id,UpdateMedicalRecordDto updateMedicalRecordDto){
-            
+        public IActionResult UpdateMedicalRecord(int id, UpdateMedicalRecordDto updateMedicalRecordDto)
+        {
+
             var patient = dbContext.Patients.Find(id);
-           
-           
+
+
             var medicalRecord = dbContext.MedicalRecords.Find(id);
             if (medicalRecord == null)
             {
@@ -83,7 +97,7 @@ namespace MyBackendApi.Controller
             medicalRecord.PatientId = updateMedicalRecordDto.PatientId;
             medicalRecord.DoctorId = updateMedicalRecordDto.DoctorId;
             dbContext.SaveChanges();
-            return Ok(new { message = "medicalrecord updated successfully",patient });
+            return Ok(new { message = "medicalrecord updated successfully", patient });
         }
         [HttpDelete]
         [Route("{id:int}")]
