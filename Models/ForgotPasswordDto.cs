@@ -8,8 +8,7 @@ namespace MyBackendApi.Models
 {
     public class ForgotPasswordDto
     {
-        [Required]
-        [EmailAddress]
         public string Email { get; set; }
+        public string NewPassword { get; set; } // Added NewPassword property
     }
 }
