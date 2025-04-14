@@ -10,7 +10,7 @@ namespace MyBackendApi.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
-    // [Authorize]
+    [Authorize]
     public class DoctorController : ControllerBase
     {
         private readonly Data.AppDbContext dbContext;
@@ -53,6 +53,7 @@ namespace MyBackendApi.Controller
             return Ok(doctor);
         }
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult AddDoctor(AddDoctorDto addDoctorDto)
         {
             if (!ModelState.IsValid)
