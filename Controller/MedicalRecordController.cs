@@ -50,6 +50,22 @@ namespace MyBackendApi.Controller
             }
             return Ok(medicalRecord);
         }
+        [HttpGet]
+        [Route("by-patient/{patientId:int}")]
+        public IActionResult GetMedicalRecordsByPatientId(int patientId)
+        {
+            var records = dbContext.MedicalRecords
+                .Where(record => record.PatientId == patientId) // Filter by PatientId
+                .OrderByDescending(record => record.DateCreated) // Sort by DateCreated in descending order
+                .ToList();
+
+            if (records == null || !records.Any())
+            {
+                return NotFound(new { message = "No medical records found for the given patient ID" });
+            }
+
+            return Ok(records);
+        }
 
         [HttpPost]
         public IActionResult AddMedicalRecord(AddMedicalRecordDto addMedicalRecordDto)
