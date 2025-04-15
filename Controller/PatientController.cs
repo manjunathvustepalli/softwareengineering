@@ -55,34 +55,34 @@ namespace MyBackendApi.Controller
         }
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult Addpatient(AddPatientDto addpatientDto)
+        public IActionResult AddPatient(AddPatientDto addPatientDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(addpatientDto.Password);
+            // Check if the username already exists
+            var existingPatient = dbContext.Patients.FirstOrDefault(p => p.Username == addPatientDto.Username);
+            if (existingPatient != null)
+            {
+                return BadRequest(new { message = "Username is already taken. Please choose a different username." });
+            }
+
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(addPatientDto.Password);
             dbContext.Patients.Add(new Patient
             {
-
-
-                Username = addpatientDto.Username,
+                Username = addPatientDto.Username,
                 PasswordHash = hashedPassword,
-                Role = addpatientDto.Role,
-                DateOfBirth = addpatientDto.DateOfBirth,
-
-                // Age = addpatientDto.Age,
-                Gender = addpatientDto.Gender,
-                Email = addpatientDto.Email,
-                PhoneNumber = addpatientDto.PhoneNumber,
-                Address = addpatientDto.Address,
-
-
-
+                Role = addPatientDto.Role,
+                DateOfBirth = addPatientDto.DateOfBirth,
+                Gender = addPatientDto.Gender,
+                Email = addPatientDto.Email,
+                PhoneNumber = addPatientDto.PhoneNumber,
+                Address = addPatientDto.Address
             });
             dbContext.SaveChanges();
-            return Ok(new { message = "patient added successfully" });
+            return Ok(new { message = "Patient added successfully" });
         }
         [HttpPut]
         [Route("{id:int}")]

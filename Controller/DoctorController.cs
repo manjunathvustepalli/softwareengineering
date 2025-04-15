@@ -61,11 +61,16 @@ namespace MyBackendApi.Controller
                 return BadRequest(ModelState);
             }
 
+            // Check if the username already exists
+            var existingDoctor = dbContext.Doctors.FirstOrDefault(d => d.Username == addDoctorDto.Username);
+            if (existingDoctor != null)
+            {
+                return BadRequest(new { message = "Username is already taken. Please choose a different username." });
+            }
+
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(addDoctorDto.Password);
             dbContext.Doctors.Add(new Doctor
             {
-
-
                 Username = addDoctorDto.Username,
                 PasswordHash = hashedPassword,
                 Role = addDoctorDto.Role,
