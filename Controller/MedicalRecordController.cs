@@ -11,7 +11,7 @@ namespace MyBackendApi.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
-    // [Authorize]
+    [Authorize]
     public class MedicalRecordController : ControllerBase
     {
         private readonly Data.AppDbContext dbContext;
