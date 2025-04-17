@@ -125,6 +125,8 @@ namespace MyBackendApi.Migrations
 
                     b.HasKey("RecordId");
 
+                    b.HasIndex("DoctorId");
+
                     b.HasIndex("PatientId");
 
                     b.ToTable("MedicalRecords");
@@ -182,11 +184,26 @@ namespace MyBackendApi.Migrations
 
             modelBuilder.Entity("MyBackendApi.Models.MedicalRecord", b =>
                 {
-                    b.HasOne("MyBackendApi.Models.Patient", null)
+                    b.HasOne("MyBackendApi.Models.Doctor", "Doctor")
+                        .WithMany("MedicalRecords")
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyBackendApi.Models.Patient", "Patient")
                         .WithMany("MedicalRecords")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("MyBackendApi.Models.Doctor", b =>
+                {
+                    b.Navigation("MedicalRecords");
                 });
 
             modelBuilder.Entity("MyBackendApi.Models.Patient", b =>

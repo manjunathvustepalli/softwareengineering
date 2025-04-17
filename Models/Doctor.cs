@@ -8,52 +8,56 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MyBackendApi.Models
 {
     public class Doctor
-    { [Key]
-      
-   public int Id { get; set; }
+    {
+        [Key]
 
-    [Required]
-    [StringLength(50)]
-    public string Username { get; set; }
-public string PasswordHash { get; set; }
-   
+        public int Id { get; set; }
 
-    [Required]
-    [StringLength(20)]
-    public string Role { get; set; } // "Patient", "Doctor", or "Admin"
+        [Required]
+        [StringLength(50)]
+        public string Username { get; set; }
+        public string PasswordHash { get; set; }
 
-    [NotMapped] // Not stored in DB
-    public string Password { get; set; } // Only for DTO binding
 
-    [Required]
-    public DateTime DateCreated { get; set; } = DateTime.UtcNow;
+        [Required]
+        [StringLength(20)]
+        public string Role { get; set; } // "Patient", "Doctor", or "Admin"
 
-    public DateTime? LastUpdated { get; set; }
+        [NotMapped] // Not stored in DB
+        public string Password { get; set; } // Only for DTO binding
 
-    [Required]
-    [StringLength(500)]
-    public string HospitalName { get; set; }
+        [Required]
+        public DateTime DateCreated { get; set; } = DateTime.UtcNow;
 
-    [StringLength(1000)]
-    public string Specailty { get; set; }
+        public DateTime? LastUpdated { get; set; }
 
-    [StringLength(500)]
-    public int Age { get; set; }
+        [Required]
+        [StringLength(500)]
+        public string HospitalName { get; set; }
+
+        [StringLength(1000)]
+        public string Specailty { get; set; }
+        [Required]
+        [StringLength(500)]
+        public int Age { get; set; }
+        [Required]
         public string Gender { get; set; } // "Male", "Female", "Other"
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
+        public string Email { get; set; }
+        [Required]
+        [Phone]
+        [StringLength(20)]
+        public string PhoneNumber { get; set; }
+        [Required]
+        [StringLength(200)]
+        public string Address { get; set; }
+        // Navigation property
+        public ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
 
-    [EmailAddress]
-    [StringLength(100)]
-    public string Email { get; set; }
 
-    [Phone]
-    [StringLength(20)]
-    public string PhoneNumber { get; set; }
 
-    [StringLength(200)]
-    public string Address { get; set; }
 
-    
-
-    
     }
 }

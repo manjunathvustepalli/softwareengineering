@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyBackendApi.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class mig1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -75,12 +75,23 @@ namespace MyBackendApi.Migrations
                 {
                     table.PrimaryKey("PK_MedicalRecords", x => x.RecordId);
                     table.ForeignKey(
+                        name: "FK_MedicalRecords_Doctors_DoctorId",
+                        column: x => x.DoctorId,
+                        principalTable: "Doctors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_MedicalRecords_Patients_PatientId",
                         column: x => x.PatientId,
                         principalTable: "Patients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MedicalRecords_DoctorId",
+                table: "MedicalRecords",
+                column: "DoctorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MedicalRecords_PatientId",
@@ -92,10 +103,10 @@ namespace MyBackendApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Doctors");
+                name: "MedicalRecords");
 
             migrationBuilder.DropTable(
-                name: "MedicalRecords");
+                name: "Doctors");
 
             migrationBuilder.DropTable(
                 name: "Patients");

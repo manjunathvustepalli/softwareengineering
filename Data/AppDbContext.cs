@@ -19,8 +19,23 @@ namespace MyBackendApi.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            // connect to postgres with connection string from app settings
+            
             options.UseNpgsql(Configuration.GetConnectionString("WebApiDatabase"));
+        }
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Configure relationships
+            modelBuilder.Entity<MedicalRecord>()
+                .HasOne(m => m.Patient)
+                .WithMany(p => p.MedicalRecords)
+                .HasForeignKey(m => m.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MedicalRecord>()
+                .HasOne(m => m.Doctor)
+                .WithMany(d => d.MedicalRecords)
+                .HasForeignKey(m => m.DoctorId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         

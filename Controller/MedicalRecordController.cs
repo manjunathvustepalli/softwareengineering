@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MyBackendApi.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyBackendApi.Controller
 {
@@ -24,48 +25,128 @@ namespace MyBackendApi.Controller
         [Route("recent")]
         public IActionResult GetRecentMedicalRecords()
         {
-            var records = dbContext.MedicalRecords
-                .OrderByDescending(record => record.DateCreated) // Sort by DateCreated in descending order
-                .Take(10) // Take only the last 10 records
-                .ToList();
-
-            return Ok(records);
-        }
-        [HttpGet]
-        public IActionResult GetMedicalRecords()
+    var records = dbContext.MedicalRecords
+        .Include(record => record.Patient) // Include Patient details
+        .OrderByDescending(record => record.DateCreated) // Sort by DateCreated in descending order
+        .Select(record => new
         {
-            var records = dbContext.MedicalRecords
-                    .OrderByDescending(record => record.DateCreated) // Sort by DateCreated in descending order
-                    .ToList();
-            return Ok(records);
-        }
-        [HttpGet]
-        [Route("{id:int}")]
-        public IActionResult GetMedicalRecordById(int id)
-        {
-            var medicalRecord = dbContext.MedicalRecords.Find(id);
-            if (medicalRecord == null)
+            record.RecordId,
+            record.DateCreated,
+            record.LastUpdated,
+            record.Diagnosis,
+            record.Treatment,
+            record.Prescription,
+            record.IsEditable,
+            Patient = new
             {
-                return NotFound(new { message = "Medical record not found" });
+                record.Patient.Id,
+                record.Patient.Username,
+                record.Patient.Email,
+                record.Patient.Gender
             }
-            return Ok(medicalRecord);
+        })
+           .Take(10) // Take only the last 10 records
+        .ToList();
+
+    return Ok(records);
+             
+  
         }
+
         [HttpGet]
-        [Route("by-patient/{patientId:int}")]
-        public IActionResult GetMedicalRecordsByPatientId(int patientId)
+public IActionResult GetMedicalRecords()
+{
+    var records = dbContext.MedicalRecords
+        .Include(record => record.Patient) // Include Patient details
+        .OrderByDescending(record => record.DateCreated) // Sort by DateCreated in descending order
+        .Select(record => new
         {
-            var records = dbContext.MedicalRecords
-                .Where(record => record.PatientId == patientId) // Filter by PatientId
-                .OrderByDescending(record => record.DateCreated) // Sort by DateCreated in descending order
-                .ToList();
-
-            if (records == null || !records.Any())
+            record.RecordId,
+            record.DateCreated,
+            record.LastUpdated,
+            record.Diagnosis,
+            record.Treatment,
+            record.Prescription,
+            record.IsEditable,
+            Patient = new
             {
-                return NotFound(new { message = "No medical records found for the given patient ID" });
+                record.Patient.Id,
+                record.Patient.Username,
+                record.Patient.Email,
+                record.Patient.Gender
             }
+        })
+        .ToList();
 
-            return Ok(records);
-        }
+    return Ok(records);
+}
+[HttpGet]
+[Route("{id:int}")]
+public IActionResult GetMedicalRecordById(int id)
+{
+    var medicalRecord = dbContext.MedicalRecords
+        .Include(record => record.Patient) // Include Patient details
+        .Where(record => record.RecordId == id) // Filter by RecordId
+        .Select(record => new
+        {
+            record.RecordId,
+            record.DateCreated,
+            record.LastUpdated,
+            record.Diagnosis,
+            record.Treatment,
+            record.Prescription,
+            record.IsEditable,
+            Patient = new
+            {
+                record.Patient.Id,
+                record.Patient.Username,
+                record.Patient.Email,
+                record.Patient.Gender
+            }
+        })
+        .FirstOrDefault();
+
+    if (medicalRecord == null)
+    {
+        return NotFound(new { message = "Medical record not found" });
+    }
+
+    return Ok(medicalRecord);
+}
+[HttpGet]
+[Route("by-patient/{patientId:int}")]
+public IActionResult GetMedicalRecordsByPatientId(int patientId)
+{
+    var records = dbContext.MedicalRecords
+        .Where(record => record.PatientId == patientId) // Filter by PatientId
+        .Include(record => record.Patient) // Include Patient details
+        .OrderByDescending(record => record.DateCreated) // Sort by DateCreated in descending order
+        .Select(record => new
+        {
+            record.RecordId,
+            record.DateCreated,
+            record.LastUpdated,
+            record.Diagnosis,
+            record.Treatment,
+            record.Prescription,
+            record.IsEditable,
+            Patient = new
+            {
+                record.Patient.Id,
+                record.Patient.Username,
+                record.Patient.Email,
+                record.Patient.Gender
+            }
+        })
+        .ToList();
+
+    if (!records.Any())
+    {
+        return NotFound(new { message = "No medical records found for the given patient ID" });
+    }
+
+    return Ok(records);
+}
 
         [HttpPost]
         public IActionResult AddMedicalRecord(AddMedicalRecordDto addMedicalRecordDto)
