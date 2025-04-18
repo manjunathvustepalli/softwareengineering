@@ -70,7 +70,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
-
+builder.Services.AddAuthorization();
 var app = builder.Build();
 app.UseCors("AllowAll");
 
